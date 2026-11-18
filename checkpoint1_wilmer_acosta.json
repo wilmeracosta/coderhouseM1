@@ -1,0 +1,220 @@
+{
+  "name": "checkpoint1_wilmer_acosta",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hola, ¿Qué quieres hacer hoy con tu calendario?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "53639500-a7f8-4460-8ba7-dca27227a04f",
+      "name": "When chat message received",
+      "webhookId": "25c86066-c24c-4f76-8827-710b854fad7a"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Eres un asistente que gestiona mi Google Calendar. Responde siempre en español, de forma breve. Antes de crear un evento, confirma conmigo el día y la hora si no están claros. \n\nLa fecha y hora actual es {{ $now }}. Mi zona horaria es Atlantic/Canary.\n\n\nMañana: {{ $now.plus({ days: 1 })}}\nEn 2 días: {{ $now.plus({ days: 2 })}}\nEn 3 días: {{ $now.plus({ days: 3 })}}\nEn 4 días: {{ $now.plus({ days: 4 })}}\nEn 5 días: {{ $now.plus({ days: 5 })}}\nEn 6 días: {{ $now.plus({ days: 6 })}}\nEn 7 días: {{ $now.plus({ days: 7 })}}\n\nREGLAS OBLIGATORIAS:\n1. Solo puedes hacer dos cosas: consultar eventos y crear eventos nuevos. Nunca borres, modifiques ni muevas eventos existentes. Si te lo pido, responde que no tienes permiso y que debo hacerlo yo manualmente.\n2. Cuando te pida agendar una reunión, primero usa la herramienta de consultar eventos para revisar el horario exacto solicitado, desde la hora de inicio hasta la hora de fin.\n3. Si no hay ningún evento en ese horario, crea el evento y confírmame el título, la fecha y la hora.\n4. Si hay un conflicto, es decir, otro evento que se solapa con ese horario, NO crees el evento. Dime qué evento ocupa ese horario y propón otros horarios libres.\n5. Si no queda claro el día o la hora, pregúntame antes de hacer nada. Si no indico la duración, usa 1 hora.\n6. Cuando te diga un día de la semana (por ejemplo \"el domingo\"), busca su fecha en el calendario de arriba; no la calcules tú. Si el día de la semana y la fecha que te doy no coinciden, avísame y pregúntame cuál es el correcto antes de crear nada. Al confirmar un evento, indica siempre el día de la semana y la fecha completa.\n7. Después de intentar agendar un evento, envíame siempre un email con la herramienta de Gmail para notificarme el resultado. Si el evento se creó, en el asunto pon \"Evento creado: \" seguido del título, y en el cuerpo pon el título, el día de la semana, la fecha y la hora de inicio y fin. Si se rechazó por conflicto, en el asunto pon \"Conflicto de horario: \" seguido del título, y en el cuerpo pon qué evento ocupa ese horario y qué horarios alternativos propones. Si solo te pido consultar eventos, no envíes ningún email."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "0990a77e-b809-40f5-8f73-8c53486f1cf9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "e841454f-141f-4115-8b1e-76c4dffe00ab",
+      "name": "Groq Chat Model",
+      "notesInFlow": true,
+      "credentials": {
+        "groqApi": {
+          "id": "VoqTR1S5poVAsfIR",
+          "name": "Groq account"
+        }
+      },
+      "notes": "openai/gpt-oss-120b"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "wilmer.acosta.f@gmail.com",
+          "mode": "list",
+          "cachedResultName": "wilmer.acosta.f@gmail.com"
+        },
+        "limit": 3,
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        304
+      ],
+      "id": "1d2fcffb-d7d3-4ea4-8d79-ec851fb1e05c",
+      "name": "Get many events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "fTaJ1iZdOzivmNhn",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "wilmer.acosta.f@gmail.com",
+          "mode": "list",
+          "cachedResultName": "wilmer.acosta.f@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        240
+      ],
+      "id": "2f38aaf1-90c0-41a0-b9d0-ac930026da37",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "fTaJ1iZdOzivmNhn",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Envía un email de notificación a Wilmer con el resultado de una gestión del calendario. Úsala solo después de intentar agendar un evento, tanto si se creó como si se rechazó por conflicto.",
+        "sendTo": "wilmer.acosta.f@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        160
+      ],
+      "id": "bc2f2a3b-07cf-45e2-9037-416c3f59a5b7",
+      "name": "Send a message in Gmail",
+      "webhookId": "ebd8419c-606f-4c41-8aa4-63a8e9fca646",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TJr3zyroDJ7wgyM2",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Atlantic/Canary",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "e99db315-ea7c-4e86-8374-97757e59c634",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4b1d3307521b3b0dd988f56a2c1985ade25e92f0f0f54b8aa8b48a861d3acd2e"
+  },
+  "nodeGroups": [],
+  "id": "xKjJ5xISzyT4xmDc",
+  "tags": []
+}
